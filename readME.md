@@ -1,4 +1,6 @@
-This is a base node js project template, which anyone can use as it has been prepared, by keeping some of the most important code principles and project management recommendations. Feel free to change anything.
+# ✈️ Flights Booking Service
+
+## 📂 Folder Structure
 
 `src` -> Inside the src folder all the actual source code regarding the project will reside, this will not include any kind of tests. (You might want to make separate tests folder)
 
@@ -18,7 +20,7 @@ Lets take a look inside the `src` folder
 
 - `utils` -> contains helper methods, error classes etc.
 
-### Setup the project
+## 🥇 Setup the project
 
 - Download this template from github and open it in your favourite text editor.
 - Go inside the folder path and execute the following command:
@@ -37,7 +39,7 @@ npm install
   ```
 - go inside the `src` folder and execute the following command:
   ```
-    npx sequelize init
+    npx sequelize init --force
   ```
 - By executing the above command you will get migrations and seeders folder along with a config.json inside the config folder.
 - If you're setting up your development environment, then write the username of your db, password of your db and in dialect mention whatever db you are using for ex: mysql, mariadb etc
