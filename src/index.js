@@ -9,6 +9,15 @@ const errorHandler = require("./utils/error.handler");
 const app = express();
 
 
+
+/**
+ * adding body parser middlewares
+ */
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.text());
+
 app.use('/api', apiRoutes);
 
 //last middleware for handling errors

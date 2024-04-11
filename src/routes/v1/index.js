@@ -12,6 +12,10 @@ const v1Routes = express.Router();
 
 v1Routes.get('/ping', PingCheckController);
 
+/**
+ * /api/v1/bookings
+ */
+
 v1Routes.use('/bookings', bookingRoutes);
 
 
