@@ -7,6 +7,8 @@ const { StatusCodes } = require('http-status-codes');
 const { Logger, ServerConfig } = require('../config');
 const { sequelize } = require('../models');
 
+const { Enums } = require('../utils/common/');
+const { BOOKED, CANCELLED } = Enums.BOOKING_STATUS;
 
 const bookingRepository = new BookingRepository();
 
@@ -29,6 +31,11 @@ async function createBooking(data) {
         const bookingPayload = { ...data, totalCost: totalBillingAmount };
         const booking = await bookingRepository.create(bookingPayload, transaction);
 
+        //updating seats in flight
+        await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${data.flightId}/seats`, {
+            seats: data.noOfSeats
+        });
+
         await transaction.commit();
         return booking;
 
@@ -38,7 +45,69 @@ async function createBooking(data) {
     }
 }
 
+async function makePayment(data) {
+    const transaction = await sequelize.transaction();
+
+    try {
+        const bookingDetails = await bookingRepository.get(data.bookingId, transaction);
+
+        if (bookingDetails.status == CANCELLED) {
+            throw new AppError(StatusCodes.BAD_REQUEST, 'Booking is Expired', []);
+        }
+
+        if (bookingDetails.status == BOOKED) {
+            throw new AppError(StatusCodes.BAD_REQUEST, 'Booking is already confirmed', []);
+        }
+
+        console.log(bookingDetails);
+
+        const bookingTime = new Date(bookingDetails.createdAt);
+        const currentTime = new Date();
+
+
+        //5 minutes deadline for completing booking
+        if (currentTime - bookingTime > 300000) {
+            await bookingRepository.update(data.bookingId, { status: CANCELLED }, transaction);
+            throw new AppError(StatusCodes.BAD_REQUEST, 'Booking is Expired', []);
+        }
+
+        if (bookingDetails.totalCost != data.totalCost) {
+
+            let details = new Array();
+
+            if (data.totalCost < bookingDetails.totalCost) {
+                details.push('Amount paid is less than booking amount');
+            }
+
+            if (data.totalCost > bookingDetails.totalCost) {
+                details.push('Amount paid is greater than booking amount');
+            }
+
+            details.push('Please retry payment with correct amount');
+
+
+            throw new AppError(StatusCodes.BAD_REQUEST, 'Payment failed', details);
+        }
+
+        if (bookingDetails.userId != data.userId) {
+            throw new AppError(StatusCodes.BAD_REQUEST, 'Something went wrong during validation', ['The user corresponding to the booking doesnt match']);
+        }
+
+
+        // we assume here that payment is successful
+        await bookingRepository.update(data.bookingId, { status: BOOKED }, transaction);
+        await transaction.commit();
+
+    } catch (error) {
+        console.log(error);
+        await transaction.rollback();
+        throw error;
+    }
+
+}
+
 
 module.exports = {
-    createBooking
+    createBooking,
+    makePayment
 }

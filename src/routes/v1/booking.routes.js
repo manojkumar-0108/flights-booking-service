@@ -11,6 +11,8 @@ const bookingRouter = express.Router();
  */
 bookingRouter.get('/ping', PingCheckController);
 
+
+
 /**
  * POST request 
  * /api/v1/bookings/
@@ -21,6 +23,18 @@ bookingRouter.get('/ping', PingCheckController);
 bookingRouter.post('/',
     BookingMiddlewares.validateCreateBookingRequest,
     BookingController.createBooking);
+
+
+/**
+ * POST request 
+ * /api/v1/bookings/payments
+ * 
+ * Request Body -> {totalCost:4500, userId:4,bookingId:2}
+ */
+
+bookingRouter.post('/payments',
+    BookingController.makePayment);
+
 
 
 module.exports = bookingRouter;
