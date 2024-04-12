@@ -133,6 +133,20 @@ async function cancelOldBookings() {
 
         const time = new Date(Date.now() - 1000 * 300); // time 5 mins ago
         const response = await bookingRepository.cancelOldBookings(time);
+
+        //Increasing all the cancelled seats
+
+        if (response.length > 0) {
+            console.log("seats updating started...");
+
+            for (let i = 0; i < response.length; i++) {
+                await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${response[i].flightId}/seats`, {
+                    seats: response[i].noOfSeats,
+                    decrease: '0'
+                });
+            }
+
+        }
         return response;
 
     } catch (error) {
