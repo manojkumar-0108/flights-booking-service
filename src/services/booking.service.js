@@ -83,9 +83,6 @@ async function makePayment(data) {
                 details.push('Amount paid is greater than booking amount');
             }
 
-            details.push('Please retry payment with correct amount');
-
-
             throw new AppError(StatusCodes.BAD_REQUEST, 'Payment failed', details);
         }
 
@@ -130,7 +127,21 @@ async function cancelBooking(bookingId) {
     }
 }
 
+
+async function cancelOldBookings() {
+    try {
+
+        const time = new Date(Date.now() - 1000 * 300); // time 5 mins ago
+        const response = await bookingRepository.cancelOldBookings(time);
+        return response;
+
+    } catch (error) {
+        console.log(error);
+        throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, 'Something went worng!', [error]);
+    }
+}
 module.exports = {
     createBooking,
-    makePayment
+    makePayment,
+    cancelOldBookings
 }

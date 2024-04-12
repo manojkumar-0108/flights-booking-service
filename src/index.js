@@ -5,6 +5,7 @@ const { IdentityReset } = require("./utils/helpers/");
 const { sequelize } = require('./models');
 const apiRoutes = require("./routes");
 const errorHandler = require("./utils/error.handler");
+const CRON = require('./utils/helpers/cron.jobs');
 
 const app = express();
 
@@ -25,6 +26,9 @@ app.use(errorHandler);
 
 app.listen(ServerConfig.PORT, () => {
     console.log(`Started server at PORT: ${ServerConfig.PORT}`);
+
+    //automatic cron jobs to cancel old bookings
+    CRON();
 
     /**
  * Resetting Identity column
