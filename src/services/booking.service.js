@@ -24,7 +24,7 @@ async function createBooking(data) {
         const flightData = flight.data.data;
 
         if (data.noOfSeats > flightData.totalSeats) {
-            throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot create booking', ['Not enough seats available']);
+            throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot create booking', ['Not enough seats available', `Remaining Seats = ${flightData.totalSeats}`]);
         }
 
         const totalBillingAmount = data.noOfSeats * flightData.price;
