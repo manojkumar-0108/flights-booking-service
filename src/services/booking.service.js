@@ -52,14 +52,13 @@ async function makePayment(data) {
         const bookingDetails = await bookingRepository.get(data.bookingId, transaction);
 
         if (bookingDetails.status == CANCELLED) {
-            throw new AppError(StatusCodes.BAD_REQUEST, 'Booking is Expired', []);
+            throw new AppError(StatusCodes.BAD_REQUEST, 'Booking is already cancelled', []);
         }
 
         if (bookingDetails.status == BOOKED) {
             throw new AppError(StatusCodes.BAD_REQUEST, 'Booking is already confirmed', []);
         }
 
-        console.log(bookingDetails);
 
         const bookingTime = new Date(bookingDetails.createdAt);
         const currentTime = new Date();
@@ -68,7 +67,8 @@ async function makePayment(data) {
         //5 minutes deadline for completing booking
         if (currentTime - bookingTime > 300000) {
             await bookingRepository.update(data.bookingId, { status: CANCELLED }, transaction);
-            throw new AppError(StatusCodes.BAD_REQUEST, 'Booking is Expired', []);
+            await cancelBooking(data.bookingId);
+            throw new AppError(StatusCodes.BAD_REQUEST, 'Booking has Expired', []);
         }
 
         if (bookingDetails.totalCost != data.totalCost) {
@@ -99,13 +99,36 @@ async function makePayment(data) {
         await transaction.commit();
 
     } catch (error) {
-        console.log(error);
         await transaction.rollback();
         throw error;
     }
 
 }
 
+
+async function cancelBooking(bookingId) {
+    const transaction = await sequelize.transaction();
+    try {
+        const bookingDetails = await bookingRepository.get(bookingId, transaction);
+
+        if (bookingDetails.status == CANCELLED) {
+            await transaction.commit();
+            return true;
+        }
+
+        await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${bookingDetails.flightId}/seats`, {
+            seats: bookingDetails.noOfSeats,
+            dec: 0
+        });
+
+        await bookingRepository.update(bookingId, { status: CANCELLED }, transaction);
+        await transaction.commit();
+
+    } catch (error) {
+        await transaction.rollback();
+        throw new InternalServerError('Something went wrong...');
+    }
+}
 
 module.exports = {
     createBooking,
