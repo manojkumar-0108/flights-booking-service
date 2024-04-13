@@ -12,8 +12,9 @@ const { BOOKED, CANCELLED } = Enums.BOOKING_STATUS;
 
 const bookingRepository = new BookingRepository();
 
-async function createBooking(data) {
 
+
+async function createBooking(data) {
 
     const transaction = await sequelize.transaction();
 
@@ -137,7 +138,6 @@ async function cancelOldBookings() {
         //Increasing all the cancelled seats
 
         if (response.length > 0) {
-            console.log("seats updating started...");
 
             for (let i = 0; i < response.length; i++) {
                 await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${response[i].flightId}/seats`, {
