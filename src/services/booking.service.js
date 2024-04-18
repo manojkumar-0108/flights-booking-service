@@ -42,7 +42,11 @@ async function createBooking(data) {
 
     } catch (error) {
         await transaction.rollback();
-        throw error;
+
+        if (error.name == 'AggregateError') {
+            throw new AppError(StatusCodes.GATEWAY_TIMEOUT, 'Cannot create bookings', ['Unable to fetch flight records']);
+        }
+        throw new InternalServerError('Cannot create bookings');
     }
 }
 
@@ -98,7 +102,10 @@ async function makePayment(data) {
 
     } catch (error) {
         await transaction.rollback();
-        throw error;
+        if (error instanceof AppError) {
+            throw error;
+        }
+        throw new InternalServerError('Payments failed! Please retry');
     }
 
 }
