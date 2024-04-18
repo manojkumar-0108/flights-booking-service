@@ -21,7 +21,6 @@ app.use(express.text());
 
 app.use('/api', apiRoutes);
 
-app.use('/bookingService/api', apiRoutes);
 
 //last middleware for handling errors
 app.use(errorHandler);
