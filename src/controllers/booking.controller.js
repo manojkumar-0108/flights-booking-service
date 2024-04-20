@@ -13,9 +13,22 @@ const inMemDb = {};
 async function createBooking(req, res, next) {
 
     try {
+        /**
+         * Request Header i.e ['x-user-data'] contains user data
+         * 
+         * {
+         *      id:
+         *      name:
+         *      email:
+         * }
+         */
+
+        const dataRecieved = req.headers['x-user-data'];
+        const userData = JSON.parse(dataRecieved);
+
         const response = await BookingService.createBooking({
             flightId: req.body.flightId,
-            userId: req.body.userId,
+            userId: userData.id,
             noOfSeats: req.body.noOfSeats
         });
 
@@ -50,11 +63,25 @@ async function makePayment(req, res, next) {
         if (inMemDb[idempotencyKey]) {
             throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot retry on a successful payment', []);
         }
+        /**
+         * Request Header i.e ['x-user-data'] contains user data
+         * 
+         * {
+         *      id:
+         *      name:
+         *      email:
+         * }
+         */
+
+        const dataRecieved = req.headers['x-user-data'];
+        const userData = JSON.parse(dataRecieved);
 
         const response = await BookingService.makePayment({
             totalCost: req.body.totalCost,
-            userId: req.body.userId,
-            bookingId: req.body.bookingId
+            userId: userData.id,
+            bookingId: req.body.bookingId,
+            userName: userData.name,
+            userEmail: userData.email
         });
 
         inMemDb[idempotencyKey] = idempotencyKey;

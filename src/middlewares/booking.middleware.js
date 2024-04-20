@@ -4,16 +4,12 @@ const { AppError } = require("../errors");
 
 function validateCreateBookingRequest(req, res, next) {
 
-    if (!req.body.flightId || !req.body.userId || !req.body.noOfSeats) {
+    if (!req.body.flightId || !req.body.noOfSeats) {
 
         let details = new Array();
 
         if (!req.body.flightId) {
             details.push("flightId is not found in incomming request in correct form")
-        }
-
-        if (!req.body.userId) {
-            details.push("userId is not found in incomming request in correct form")
         }
 
         if (!req.body.noOfSeats) {

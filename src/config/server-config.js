@@ -3,5 +3,7 @@ dotenv.config();
 
 module.exports = {
     PORT: process.env.PORT,
-    FLIGHT_SERVICE: process.env.FLIGHT_SERVICE
+    FLIGHT_SERVICE: process.env.FLIGHT_SERVICE,
+    RABBITMQ_URL: process.env.RABBITMQ_URL,
+    QUEUE_NAME: process.env.QUEUE_NAME
 };

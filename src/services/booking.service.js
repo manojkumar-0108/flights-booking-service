@@ -4,7 +4,7 @@ const axios = require('axios');
 const { BookingRepository } = require('../repositories');
 const { AppError, InternalServerError } = require('../errors/');
 const { StatusCodes } = require('http-status-codes');
-const { Logger, ServerConfig } = require('../config');
+const { Logger, ServerConfig, MessageQueue } = require('../config');
 const { sequelize } = require('../models');
 
 const { Enums } = require('../utils/common/');
@@ -98,6 +98,20 @@ async function makePayment(data) {
 
         // we assume here that payment is successful
         await bookingRepository.update(data.bookingId, { status: BOOKED }, transaction);
+
+        const flight = await axios.get(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${bookingDetails.flightId}`);
+        const flightData = flight.data.data;
+
+        /**
+         * Sending confirmation message to message queue
+         */
+        MessageQueue.sendData({
+
+            subject: 'Booking Confirmed! 🥳',
+            content: `Hi ${data.userName},\nYour booking is confirmed! 🎉 \n\nBooking Details\nTime: ${new Date()}\nFlight Number: ${flightData.flightNumber}\nNo of Seats: ${bookingDetails.noOfSeats}\nTotal Amount Paid: ${bookingDetails.totalCost}\n\nThank you for choosing us! We can't wait to see you.\nGot questions? Reply to this email or give us a call!\nBest wishes,`,
+            recepientEmail: data.userEmail
+        })
+
         await transaction.commit();
 
     } catch (error) {

@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { ServerConfig, Logger } = require("./config");
+const { ServerConfig, Logger, MessageQueue } = require("./config");
 const { IdentityReset } = require("./utils/helpers/");
 const { sequelize } = require('./models');
 const apiRoutes = require("./routes");
@@ -25,11 +25,15 @@ app.use('/api', apiRoutes);
 //last middleware for handling errors
 app.use(errorHandler);
 
-app.listen(ServerConfig.PORT, () => {
+app.listen(ServerConfig.PORT, async () => {
     console.log(`Started server at PORT: ${ServerConfig.PORT}`);
 
     //automatic cron jobs to cancel old bookings
     CRON();
+
+    //connect message queue
+    await MessageQueue.connectQueue();
+    console.log("Message Queue Connected !");
 
     /**
  * Resetting Identity column
