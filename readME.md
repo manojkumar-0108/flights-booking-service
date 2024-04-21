@@ -1,14 +1,16 @@
 # 📅 Flights Booking Service
 
-✨ **Streamlined Authentication:** This service handles user registration, authentication, and authorization to provide smooth and secure user experiences.
+🛒 **`Flexible Booking Management`**: This service facilitates flight bookings and reservations, providing users with an easy and efficient way to secure their travel plans.
 
-🌐 **Efficient Proxy Handling:** It creates a seamless proxy for both the Flights Service and the Booking Service, ensuring fast and reliable routing and ensure no unathorized access.
+💳 **`Robust Payment Processing`**: The service manages payments using secure and reliable methods, including idempotency keys for consistent and repeatable transactions.
 
-🚦 **Smart Rate Limiting:** Integrated rate limiter controls traffic flow and prevents overloading, maintaining optimal performance and service reliability.
+🎫 **`Real-Time Availability Checks`**: It ensures that booking requests are processed based on real-time data, avoiding overbooking and ensuring accurate seat availability.
 
-🔐 **Secure Access Control:** Users must be authenticated to create bookings, and only authorized individuals (admins or flight company representatives) can modify flight details.
+⏱️ **`Timely Booking Validation`**: The service validates booking requests against tight time constraints to prevent expired bookings and ensure smooth transactions.
 
-📌 Note: This service is dependent on `flights`✈️ and `bookings` 📅 service for some functionalities.
+🏛️ **`Efficient Queue Handling`**: Utilizes a message queue system for managing booking-related events and updates, ensuring smooth communication and timely processing.
+
+📌 Note: This service is dependent on `flights`✈️ service.
 
 ## 🔍 Exploring the `Folder Structure`
 
